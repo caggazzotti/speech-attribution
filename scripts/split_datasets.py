@@ -1,5 +1,5 @@
 """
-    This script separates Fisher pt. 1 and pt. 2 into training, validation, and test datasets based on speaker so each set has unique speakers. The pin (speaker ID), gender, call_ID, topic, and channel is collected for all the calls and saved in pos_call_info.json for later positive pair creation and all_call_info.json for later negative pair creation.
+    This script separates Fisher pt. 1 and pt. 2 into training, validation, and test datasets based on speaker so each set has unique speakers. The pin (speaker ID), gender, call_ID, topic, and channel is collected for all the calls and saved in pos_call_info.json for later positive trial creation and all_call_info.json for later negative trial creation.
 
     Inputs: pindata_tbl, calldata_tbl_pt1, calldata_tbl_pt2 (Fisher files)
     Outputs: following 4 dataset files for x = train, val, test 
@@ -85,7 +85,7 @@ def get_pin_data(set_data, pin_outfile):
             info = copy.deepcopy(call_info) 
             for item in info:
                 item.insert(0, pin_ID)
-                all_pin_data.append(item) # for later negative pair creation
+                all_pin_data.append(item) # for later negative trial creation
     stats_info = [len(set_data), len(pin_IDs), len(pos_pin_data), len(all_pin_data), gender_count]
     output_json(pin_IDs, pin_outfile)
     return pos_pin_data, all_pin_data, stats_info, pin_IDs 
@@ -179,10 +179,10 @@ def output_txt(set_type, r_state, num_speakers, split_perc, num_pins, num_calls,
         o_f.write('%s stats:\n' % set_type)
         o_f.write('Num speakers in initial dataset split: %i\n' % stats_info[0])
         o_f.write('Num speakers after gender check: %i\n' % stats_info[1])
-        o_f.write('Num speakers for pos pairs before adding topic: %i\n' % stats_info[2])
-        o_f.write('Num calls for neg pairs before adding topic: %i\n' % stats_info[3])
-        o_f.write('Num speakers for pos pairs after adding topic: %i\n' % num_pins)
-        o_f.write('Num calls for neg pairs after adding topic: %i\n' % num_calls)
+        o_f.write('Num speakers for pos trials before adding topic: %i\n' % stats_info[2])
+        o_f.write('Num calls for neg trials before adding topic: %i\n' % stats_info[3])
+        o_f.write('Num speakers for pos trials after adding topic: %i\n' % num_pins)
+        o_f.write('Num calls for neg trials after adding topic: %i\n' % num_calls)
         o_f.write('Gender: %s\n' % str(stats_info[4]))
     return
 
@@ -198,9 +198,9 @@ def main(cfg):
     train_fraction = cfg['train_fraction']
     
     ### Fisher data files
-    calldata_tbl_pt1 = fisher_dir1 + 'fe_03_p1_calldata.tbl'
-    calldata_tbl_pt2 = fisher_dir2 + 'fe_03_p2_calldata.tbl'
-    pindata_tbl = fisher_dir1 + 'fe_03_pindata.tbl' 
+    calldata_tbl_pt1 = fisher_dir1 + 'doc/fe_03_p1_calldata.tbl'
+    calldata_tbl_pt2 = fisher_dir2 + 'doc/fe_03_p2_calldata.tbl'
+    pindata_tbl = fisher_dir1 + 'doc/fe_03_pindata.tbl' 
     
     ### Split datasets by speaker
     val_fraction = 1 - train_fraction - test_fraction
