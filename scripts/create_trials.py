@@ -11,6 +11,7 @@
         Harder negative trials (balanced according to restrictions)
 """
 
+import os
 import json
 import copy
 import time
@@ -19,7 +20,7 @@ from collections import Counter
 import yaml
 import sys
 
-###############################       Match positive trials       ###################################
+###############################       Create positive trials       ###############################
 
 def match_manypos_trials(f_max, m_max, topic_max, trials_max, pos_call_info_file, 
                         manypos_trials_outfile): 
@@ -30,9 +31,9 @@ def match_manypos_trials(f_max, m_max, topic_max, trials_max, pos_call_info_file
     Input data: 
         pos_call_data = {pin: [[gender, call_ID, channel, topic], [...]], ...}
     Output (json): can balance for gender and topic
-        pos_trials = [{'PIN': '#', 'call 1': [gender, call_ID, channel, topic], 
-                    'call 2': [gender, call_ID, channel, topic]}, 
-                    {...}, ...]
+        pos_trials_info = [{'PIN': '#', 'call 1': [gender, call_ID, channel, topic], 
+                        'call 2': [gender, call_ID, channel, topic]}, 
+                        {...}, ...]
     """
     with open(pos_call_info_file, 'r') as f:
         pos_call_data = json.loads(f.read())
@@ -87,9 +88,9 @@ def match_hardpos_trials(max_count, trials_max, pos_call_info_file, hardpos_tria
     Input data: 
         pos_call_data = {pin: [[gender, call_ID, channel, topic], [...]], ...}
     Output (json): 
-        hardpos_trials = [{'PIN': '#', 'call 1': [gender, call_ID, channel, topic], 
-                        'call 2': [gender, call_ID, channel, topic]}, 
-                        {...}, ...]
+        hardpos_trials_info = [{'PIN': '#', 'call 1': [gender, call_ID, channel, topic], 
+                            'call 2': [gender, call_ID, channel, topic]}, 
+                            {...}, ...]
     """
     with open(pos_call_info_file, 'r') as f:
         pos_call_data = json.loads(f.read())
@@ -134,7 +135,7 @@ def match_hardpos_trials(max_count, trials_max, pos_call_info_file, hardpos_tria
     return stats_info
 
 
-###############################       Match Negative Pairs       ###################################
+###############################       Create negative trials       ###############################
 
 def match_manyneg_trials(all_call_info_file, call_match_max, topic_max, trials_max, 
                         manyneg_trials_outfile): 
@@ -142,7 +143,8 @@ def match_manyneg_trials(all_call_info_file, call_match_max, topic_max, trials_m
     Negative trials = different speakers (same or different call)
     NOTE can be restricted by choice of call_match_max, topic_max, trials_max
 
-    Input data: all_call_data = [[pin, gender, call_ID, channel, topic], ...]
+    Input data: 
+        all_call_data = [[pin, gender, call_ID, channel, topic], ...]
     Outputs (json):
         manyneg_trials_info = [ [[pin, gender, call_ID, channel, topic],
                                 [pin, gender, call_ID, channel, topic]], 
@@ -292,8 +294,7 @@ def match_harderneg_trials(all_call_info_file, trials_max, harderneg_trials_outf
     return stats_info
 
 
-
-###############################       SAVE and OUTPUT       ###################################
+###############################       Save and output       ###############################
 
 def output_json(data, data_outfile): 
     with open(data_outfile, 'wt') as writer:
@@ -303,6 +304,7 @@ def output_json(data, data_outfile):
 
 def output_txt(set_type, f_max, m_max, topic_max_manypos, topic_max_manyneg, 
                call_match_max_manyneg, call_match_max_hardneg, trials_max_pos, trials_max_neg, trials_max_harder, stats_all, stats_outfile): 
+    """ Output dataset stats to txt file """
     with open(stats_outfile, 'w') as o_f:
         o_f.write('%s stats\n' % set_type)
         o_f.write('Max num of females and males: %i, %i\n' % (f_max, m_max))
@@ -325,11 +327,12 @@ def output_txt(set_type, f_max, m_max, topic_max_manypos, topic_max_manyneg,
     return
 
 
-###############################       MAIN       ###################################
+###############################       MAIN       ###############################
 
 def main(cfg):
     ### Get config parameters
-    outdata_dir = cfg['outdata_dir']
+    trials_dir = cfg['trial_data_dir']
+    stats_dir = cfg['trial_stats_dir']
     f_max = cfg['f_max']
     m_max = cfg['m_max'] 
     datasets = cfg['datasets']
@@ -346,8 +349,8 @@ def main(cfg):
         trials_max_harder = cfg[f'trials_max_harder_{set_type}'] 
         
         ### Infiles
-        pos_call_info_file = outdata_dir + f'{set_type}_pos_call_info.json' 
-        all_call_info_file = outdata_dir + f'{set_type}_all_call_info.json'
+        pos_call_info_file = os.path.join(trials_dir, f'{set_type}_pos_call_info.json') 
+        all_call_info_file = os.path.join(trials_dir, f'{set_type}_all_call_info.json')
         
         ### Create all trials for the dataset
         tic = time.perf_counter() 
@@ -355,7 +358,7 @@ def main(cfg):
         stats_all = []
         for trial_type in trial_types: # 'manypos', 'manyneg', 'hardpos', 'hardneg', 'harderneg'
             ### Outfile for trials
-            trials_outfile = outdata_dir + f'{set_type}_{trial_type}_trials_info.json' 
+            trials_outfile = os.path.join(trials_dir, f'{set_type}_{trial_type}_trials_info.json') 
             
             ### Get trials by trial_type
             if trial_type == 'manypos': # same speaker, different call
@@ -380,7 +383,7 @@ def main(cfg):
                 stats_all.append({'trial type': trial_type, 'stats': stats_harderneg})
         
         ### Output dataset trial stats to txt file
-        stats_outfile = outdata_dir + f'{set_type}_set_trials_stats.txt'
+        stats_outfile = os.path.join(stats_dir, f'{set_type}_set_trials_stats.txt')
         output_txt(set_type.upper(), f_max, m_max, topic_max_manypos, topic_max_manyneg,      
                    call_match_max_manyneg, call_match_max_hardneg, trials_max_pos, trials_max_neg, trials_max_harder, stats_all, stats_outfile) 
         toc = time.perf_counter()
