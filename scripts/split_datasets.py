@@ -2,13 +2,13 @@
     This script separates Fisher pt. 1 and pt. 2 into training, validation, and test datasets based on speaker so each set has unique speakers. The pin (speaker ID), gender, call_ID, topic, and channel is collected for all the calls and saved in pos_call_info.json for later positive trial creation and all_call_info.json for later negative trial creation.
 
     Inputs: pindata_tbl, calldata_tbl_pt1, calldata_tbl_pt2 (Fisher files)
-    Outputs: following 4 dataset files for x = train, val, test 
-        x_pin_IDs.json: ['1006', '10008',...]
+    Outputs: following 3 dataset files for x = train, val, test 
         x_pos_call_info.json: {pin: [[gender, call_ID, channel, topic], [...]], ...}
         x_all_call_info.json: [[pin, gender, call_ID, channel, topic], ...]
         x_set_stats.txt 
 """
 
+import os
 import re
 import pandas as pd
 import numpy as np
@@ -18,6 +18,8 @@ import time
 import yaml
 import sys
 
+
+###############################       Split datasets       ###############################
 
 def split_datasets(train_fraction, test_fraction, r_state, pindata_tbl):
     """
@@ -46,7 +48,7 @@ def split_datasets(train_fraction, test_fraction, r_state, pindata_tbl):
     return train_set, val_set, test_set, num_speakers
 
 
-def get_pin_data(set_data, pin_outfile):
+def get_pin_data(set_data):
     """
     Get pin, call ID, gender, and channel info for each dataset
     Speaker calls can appear in both positive and negative trials
@@ -58,7 +60,6 @@ def get_pin_data(set_data, pin_outfile):
             only speakers who participated in multiple calls
         all_pin_data = [[pin, gender, call_ID, channel], [...], ...] 
             pin and call data for every speaker in Fisher 1 and 2
-        (to json) pin_IDs = ['1006', '99004',...]
         stats_info with various sizes/distributions of the dataset
     """
     pos_pin_data = {}
@@ -87,7 +88,6 @@ def get_pin_data(set_data, pin_outfile):
                 item.insert(0, pin_ID)
                 all_pin_data.append(item) # for later negative trial creation
     stats_info = [len(set_data), len(pin_IDs), len(pos_pin_data), len(all_pin_data), gender_count]
-    output_json(pin_IDs, pin_outfile)
     return pos_pin_data, all_pin_data, stats_info, pin_IDs 
 
 
@@ -163,6 +163,8 @@ def sanity_check_sets(train_pin_IDs, val_pin_IDs, test_pin_IDs):
     return
 
 
+###############################       Save and output       ###############################
+
 def output_json(data, data_outfile): 
     with open(data_outfile, 'wt') as writer:
         writer.write(json.dumps(data, indent=4))
@@ -171,6 +173,7 @@ def output_json(data, data_outfile):
 
 def output_txt(set_type, r_state, num_speakers, split_perc, num_pins, num_calls, \
                stats_info, stats_outfile): 
+    """ Output dataset stats to txt file """
     with open(stats_outfile, 'w') as o_f:
         o_f.write('Total num speakers: %i\n' % num_speakers)
         o_f.write('Dataset split (train-val-test): %s\n' % split_perc)
@@ -188,19 +191,21 @@ def output_txt(set_type, r_state, num_speakers, split_perc, num_pins, num_calls,
 
 
 ###############################       MAIN       ###################################
+
 def main(cfg):
     ### Get config parameters
     fisher_dir1 = cfg['fisher_dir1']
     fisher_dir2 = cfg['fisher_dir2']
-    outdata_dir = cfg['outdata_dir']
+    trials_dir = cfg['trial_data_dir']
+    stats_dir = cfg['trial_stats_dir']
     r_state = cfg['r_state'] 
     test_fraction = cfg['test_fraction']
     train_fraction = cfg['train_fraction']
     
     ### Fisher data files
-    calldata_tbl_pt1 = fisher_dir1 + 'doc/fe_03_p1_calldata.tbl'
-    calldata_tbl_pt2 = fisher_dir2 + 'doc/fe_03_p2_calldata.tbl'
-    pindata_tbl = fisher_dir1 + 'doc/fe_03_pindata.tbl' 
+    calldata_tbl_pt1 = os.path.join(fisher_dir1, 'doc/fe_03_p1_calldata.tbl')
+    calldata_tbl_pt2 = os.path.join(fisher_dir2, 'doc/fe_03_p2_calldata.tbl')
+    pindata_tbl = os.path.join(fisher_dir1, 'doc/fe_03_pindata.tbl')
     
     ### Split datasets by speaker
     val_fraction = 1 - train_fraction - test_fraction
@@ -215,13 +220,12 @@ def main(cfg):
     all_pin_IDs = []
     for set_type, set_data in dataset_splits.items():
         ### Output files
-        pinIDs_outfile = outdata_dir + f'{set_type}_pin_IDs.json'
-        pos_data_outfile = outdata_dir + f'{set_type}_pos_call_info.json'
-        all_data_outfile = outdata_dir + f'{set_type}_all_call_info.json'
-        stats_outfile = outdata_dir + f'{set_type}_set_stats.txt'
+        pos_data_outfile = os.path.join(trials_dir, f'{set_type}_pos_call_info.json')
+        all_data_outfile = os.path.join(trials_dir, f'{set_type}_all_call_info.json')
+        stats_outfile = os.path.join(stats_dir, f'{set_type}_set_stats.txt')
         
         ### Get speaker info
-        pos_pin_data, all_pin_data, stats_info, pin_IDs  = get_pin_data(set_data, pinIDs_outfile)
+        pos_pin_data, all_pin_data, stats_info, pin_IDs  = get_pin_data(set_data)
         all_pin_IDs.append(pin_IDs) # for later sanity check of no speaker overlap  
         
         ### Get call info
