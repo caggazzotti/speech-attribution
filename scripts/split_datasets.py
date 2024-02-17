@@ -196,8 +196,7 @@ def main(cfg):
     ### Get config parameters
     fisher_dir1 = cfg['fisher_dir1']
     fisher_dir2 = cfg['fisher_dir2']
-    trials_dir = cfg['trial_data_dir']
-    stats_dir = cfg['trial_stats_dir']
+    work_dir = cfg['work_dir']
     r_state = cfg['r_state'] 
     test_fraction = cfg['test_fraction']
     train_fraction = cfg['train_fraction']
@@ -220,9 +219,13 @@ def main(cfg):
     all_pin_IDs = []
     for set_type, set_data in dataset_splits.items():
         ### Output files
-        pos_data_outfile = os.path.join(trials_dir, f'{set_type}_pos_call_info.json')
-        all_data_outfile = os.path.join(trials_dir, f'{set_type}_all_call_info.json')
-        stats_outfile = os.path.join(stats_dir, f'{set_type}_set_stats.txt')
+        if not os.path.exists('trials_data'):
+            os.makedirs('trials_data')
+        pos_data_outfile = os.path.join(work_dir, f'trials_data/{set_type}_pos_call_info.json')
+        all_data_outfile = os.path.join(work_dir, f'trials_data/{set_type}_all_call_info.json')
+        if not os.path.exists('trials_stats'):
+            os.makedirs('trials_stats')
+        stats_outfile = os.path.join(work_dir, f'trials_stats/{set_type}_set_stats.txt')
         
         ### Get speaker info
         pos_pin_data, all_pin_data, stats_info, pin_IDs  = get_pin_data(set_data)
