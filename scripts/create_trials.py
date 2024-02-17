@@ -331,14 +331,16 @@ def output_txt(set_type, f_max, m_max, topic_max_manypos, topic_max_manyneg,
 
 def main(cfg):
     ### Get config parameters
-    trials_dir = cfg['trial_data_dir']
-    stats_dir = cfg['trial_stats_dir']
+    work_dir = cfg['work_dir']
     f_max = cfg['f_max']
     m_max = cfg['m_max'] 
     datasets = cfg['datasets']
     trial_types = cfg['trial_types']
 
-    for set_type in datasets: #'train', 'val', 'test'
+    trials_dir = os.path.join(work_dir, 'trials_data')
+    stats_dir = os.path.join(work_dir, 'trials_stats')
+
+    for set_type in datasets: # 'train', 'val', 'test'
         ### Get dataset parameters
         topic_max_manypos = cfg[f'topic_max_manypos_{set_type}'] 
         topic_max_manyneg = cfg[f'topic_max_manyneg_{set_type}'] 
@@ -387,7 +389,7 @@ def main(cfg):
         output_txt(set_type.upper(), f_max, m_max, topic_max_manypos, topic_max_manyneg,      
                    call_match_max_manyneg, call_match_max_hardneg, trials_max_pos, trials_max_neg, trials_max_harder, stats_all, stats_outfile) 
         toc = time.perf_counter()
-        print(f"Finished {set_type} set trial creation in {toc - tic:0.3f} seconds\n")
+        print(f"Finished trial creation in {toc - tic:0.3f} seconds\n")
     return
 
 
