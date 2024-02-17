@@ -1,10 +1,13 @@
 """
-    This script retrieves the transcript for each call in each set of positive and negative trials. Not all BBN transcripts exist, so the number of trials reduces after adding BBN transcripts to the trials. Adding BBN transcripts must be done first so the LDC trials match the BBN trials.
+    This script retrieves the transcript for each call in each set of positive and negative trials, combines the positive and negative trials into difficulty levels, and outputs the resulting trial files. Not all BBN transcripts exist, so the number of trials reduces after adding BBN transcripts to the trials. Adding BBN transcripts must be done first so the LDC trials match the BBN trials.
 
     Inputs: 
         Dataset files containing positive and negative trial info 
     Outputs: 
-        Dataset files containing positive and negative trials with corresponding BBN/LDC transcripts
+        Dataset files containing trials with corresponding BBN/LDC transcripts by difficulty level
+            transcripts = [{'label': 0, 'call 1': ['utterance 1', 'utterance 2', '...'], 
+                            'call 2': ['utterance 1', 'utterance 2', '...']}, 
+                            {...}, ...]
         Dataset files containing positive and negative trial info - FINAL 
 """
 
@@ -20,24 +23,27 @@ import re
 ##########################       Retrieve transcripts for trials       ##########################
 
 def get_pos_transcripts(encoding, trial_type, pos_trials_info_file, trunc_style, trunc_size, 
-                        dir1, dir2, transcripts_outfile):
+                        dir1, dir2):
     """
-    Retrieve transcripts for each call in the positive trials and output to json file. Returns a final list of trials info (to use in retrieving LDC transcripts) after checking the BBN transcript exists for each call.
+    Retrieve transcripts for each call in the positive trials. Outputs a final list of trials info (to use in retrieving LDC transcripts) after checking the BBN transcript exists for each call.
 
     Input data:
         pos_trials_info = [{'PIN': '#', 'call 1': [gender, call_ID, channel, topic], 
                         'call 2': [gender, call_ID, channel, topic]}, 
                         {...}, ...]
-    Output data:
-        pos_transcripts = [{'label': 1, 'call 1': ['utterance 1', 'utterance 2', '...'], 
-                            'call 2': ['utterance 1', 'utterance 2', '...']}, 
-                            {...}, ...]
+    Returns:
+        pos_trials_info_final = [{'PIN': '#', 'call 1': [gender, call_ID, channel, topic], 
+                                'call 2': [gender, call_ID, channel, topic]}, 
+                                {...}, ...]
+        pos_transcript_trials = [{'label': 1, 'call 1': ['utterance 1', 'utterance 2', '...'], 
+                                'call 2': ['utterance 1', 'utterance 2', '...']}, 
+                                {...}, ...]
     """
     with open(pos_trials_info_file, 'r') as f:
         pos_trials_info = json.loads(f.read())
     pos_transcripts = []
     pos_trials_final = []
-    for trial in pos_trials_info:
+    for trial in pos_trials_info[:100]:
         transcripts = []
         call_ID1 = trial['call 1'][1]
         channel1 = trial['call 1'][2]
@@ -96,30 +102,32 @@ def get_pos_transcripts(encoding, trial_type, pos_trials_info_file, trunc_style,
                             'call 2': transcripts[1]}
             pos_transcripts.append(pos_transcript)
             pos_trials_final.append(trial)
-    output_to_file(pos_transcripts, transcripts_outfile) # trials with transcripts
     print(f'Number {trial_type} trials: ', len(pos_transcripts))
-    return pos_trials_final, len(pos_transcripts)
+    return pos_transcripts, pos_trials_final, len(pos_transcripts)
 
 
 def get_neg_transcripts(encoding, trial_type, neg_trials_info_file, trunc_style, trunc_size, 
-                        dir1, dir2, transcripts_outfile):
+                        dir1, dir2):
     """
-    Retrieve transcripts for each call in the negative trials and output to json file. Returns a final list of trials info (to use in retrieving LDC transcripts) after checking the BBN transcript exists for each call.
+    Retrieve transcripts for each call in the negative trials. Outputs a final list of trials info (to use in retrieving LDC transcripts) after checking the BBN transcript exists for each call.
 
     Input data:
         neg_trials_info = [ [[pin, gender, call_ID, channel, topic],
                                 [pin, gender, call_ID, channel, topic]], 
-                               [ [],[] ], ...]
-    Output data:
-        neg_transcripts = [{'label': 0, 'call 1': ['utterance 1', 'utterance 2', '...'], 
-                            'call 2': ['utterance 1', 'utterance 2', '...']}, 
-                            {...}, ...]
+                                [ [],[] ], ...]
+    Returns:
+        neg_trials_info_final = [ [[pin, gender, call_ID, channel, topic],
+                                [pin, gender, call_ID, channel, topic]], 
+                                [ [],[] ], ...]
+        neg_transcript_trials = [{'label': 0, 'call 1': ['utterance 1', 'utterance 2', '...'], 
+                                'call 2': ['utterance 1', 'utterance 2', '...']}, 
+                                {...}, ...]
     """
     with open(neg_trials_info_file, 'r') as f:
         neg_trials_info = json.loads(f.read())
     neg_transcripts = []
     neg_trials_final = []
-    for trial in neg_trials_info:
+    for trial in neg_trials_info[:100]:
         transcripts = []
         call_ID1 = trial[0][2]
         channel1 = trial[0][3]
@@ -178,9 +186,8 @@ def get_neg_transcripts(encoding, trial_type, neg_trials_info_file, trunc_style,
                             'call 2': transcripts[1]}
             neg_transcripts.append(neg_transcript)
             neg_trials_final.append(trial)
-    output_to_file(neg_transcripts, transcripts_outfile) # trials with transcripts
     print(f'Number {trial_type} trials: ', len(neg_transcripts))
-    return neg_trials_final, len(neg_transcripts)
+    return neg_transcripts, neg_trials_final, len(neg_transcripts)
 
 
 def get_speaker_lines(fname, encoding, channel):
@@ -257,7 +264,10 @@ def output_txt(encoding, dataset, trials_counts, stats_outfile):
         o_f.write('Dataset: %s' % dataset)
         o_f.write('\n---------------------------\n')
         for trial in trials_counts:
-            o_f.write('Num %s trials: %i\n' % (trial['trial type'], trial['count']))
+            o_f.write('Difficulty: %s\n' % trial['difficulty'])
+            o_f.write('Num positive trials: %i\n' % trial['pos trials count'])
+            o_f.write('Num negative trials: %i\n' % trial['neg trials count'])
+            o_f.write('Num total trials: %i\n\n' % trial['total trials count'])
         o_f.write('\n---------------------------\n')
     return
 
@@ -268,78 +278,115 @@ def main(cfg):
     ### Get config parameters
     fisher_dir1 = cfg['fisher_dir1']
     fisher_dir2 = cfg['fisher_dir2']
-    trials_dir = cfg['trial_data_dir']
-    stats_dir = cfg['trial_stats_dir']
+    work_dir = cfg['work_dir']
     datasets = cfg['datasets']
-    trial_types = cfg['trial_types']
+    difficulties = cfg['difficulties']
     trunc_style = cfg['trunc_style']
     trunc_size = cfg['trunc_size']
+
+    trials_dir = os.path.join(work_dir, 'trials_data')
+    stats_dir = os.path.join(work_dir, 'trials_stats')
 
     ### Fisher data folders
     bbn_dir1 = os.path.join(fisher_dir1, "data/bbn_orig/")
     bbn_dir2 = os.path.join(fisher_dir2, "data/bbn_orig/")
     ldc_dir1 = os.path.join(fisher_dir1, "data/trans/")
     ldc_dir2 = os.path.join(fisher_dir2, "data/trans/")
-
-    ### Step 1: Get BBN transcripts for each trial
-    for dataset in datasets: #'train', 'val', 'test' 
+    
+    ### Step 1: Get BBN transcripts for each trial within each difficulty level
+    for dataset in datasets: # 'train', 'val', 'test' 
         bbn_trials_counts = []
-        for trial_type in trial_types: #'manypos', 'manyneg', 'hardpos', 'hardneg', 'harderneg'
-            ### Infile
-            trials_info_file = os.path.join(trials_dir, f'{dataset}_{trial_type}_trials_info.json')
+        for difficulty in difficulties: # 'base', 'hard', 'harder'
+            if difficulty == 'base':
+                trial_match = ['manypos', 'manyneg']
+            elif difficulty == 'hard':
+                trial_match = ['hardpos', 'hardneg']
+            elif difficulty == 'harder':
+                trial_match = ['hardpos', 'harderneg']
+            
+            ### Infiles
+            pos_info_file = os.path.join(trials_dir, 
+                                        f'{dataset}_{trial_match[0]}_trials_info.json')
+            neg_info_file = os.path.join(trials_dir, 
+                                        f'{dataset}_{trial_match[1]}_trials_info.json')
 
             ### Outfiles 
-            trials_final_outfile = os.path.join(trials_dir, 
-                                                f'{dataset}_{trial_type}_trials_info_final.json')
-            bbn_transcripts_outfile = os.path.join(trials_dir, 
-                                                   f'bbn_{dataset}_{trial_type}_trials.npy')
+            pos_info_final_outfile = os.path.join(trials_dir, 
+                                        f'{dataset}_{trial_match[0]}_trials_info_final.json')
+            neg_info_final_outfile = os.path.join(trials_dir, 
+                                        f'{dataset}_{trial_match[1]}_trials_info_final.json')
             
             ### Retrieve BBN transcripts for trials
             tic = time.perf_counter()
-            print(f"Retrieving {dataset} set BBN transcripts for {trial_type} trials...")
-            if 'pos' in trial_type:
-                trials_final, trials_count = get_pos_transcripts('bbn', trial_type, 
-                                                                 trials_info_file, trunc_style, trunc_size, bbn_dir1, bbn_dir2, bbn_transcripts_outfile)
-            elif 'neg' in trial_type:
-                trials_final, trials_count = get_neg_transcripts('bbn', trial_type, 
-                                                                 trials_info_file, trunc_style, trunc_size, bbn_dir1, bbn_dir2, bbn_transcripts_outfile)
-            bbn_trials_counts.append({'trial type': trial_type, 'count': trials_count})
+            print(f"Retrieving {dataset} set BBN transcripts for {difficulty} trials...")
 
-            ### Output final trials list (after checking for BBN transcript) for input to LDC
-            output_json(trials_final, trials_final_outfile) 
+            pos_transcripts, pos_trials_final, pos_trials_count = \
+                get_pos_transcripts('bbn', trial_match[0], pos_info_file, trunc_style, trunc_size, 
+                                    bbn_dir1, bbn_dir2)
+            neg_transcripts, neg_trials_final, neg_trials_count = \
+                get_neg_transcripts('bbn', trial_match[1], neg_info_file, trunc_style, trunc_size, 
+                                    bbn_dir1, bbn_dir2)
+            bbn_trials_counts.append({'difficulty': difficulty, 
+                                    'pos trials count': pos_trials_count,
+                                    'neg trials count': neg_trials_count,
+                                    'total trials count': pos_trials_count + neg_trials_count})
+            
+            ### Output final trials after checking for BBN transcript (for matching LDC transcripts)
+            output_json(pos_trials_final, pos_info_final_outfile) 
+            output_json(neg_trials_final, neg_info_final_outfile) 
+
+            ### Output BBN trials with transcripts by difficulty level
+            bbn_transcripts_outfile = os.path.join(trials_dir, 
+                                                f'bbn_{dataset}_{difficulty}_trials.npy')
+            pos_neg_transcripts = pos_transcripts + neg_transcripts
+            output_to_file(pos_neg_transcripts, bbn_transcripts_outfile) 
+
             toc = time.perf_counter()
-            print(f"Finished retrieving {dataset} set BBN transcripts for {trial_type} trials in \
-                  {(toc - tic)/60:0.4f} minutes")
+            print(f"Retrieved trials in {(toc - tic)/60:0.4f} minutes")
         
         ### Output BBN trial stats to txt file
         bbn_stats_outfile = os.path.join(stats_dir, f'{dataset}_trials_stats_final_bbn.txt')
         output_txt('BBN', dataset, bbn_trials_counts, bbn_stats_outfile)
     
     ### Step 2: Get LDC transcripts for each trial
-    for dataset in datasets: #'train', 'val', 'test' 
+    for dataset in datasets: # 'train', 'val', 'test' 
         ldc_trials_counts = []
-        for trial_type in trial_types: #'manypos', 'manyneg', 'hardpos', 'hardneg', 'harderneg'
-            ### Infile: final info file (to ensure BBN transcripts existed for each call)
-            trials_final_file = os.path.join(trials_dir, 
-                                             f'{dataset}_{trial_type}_trials_info_final.json') 
-            
-            ### Outfile
-            ldc_transcripts_outfile = os.path.join(trials_dir, 
-                                                   f'ldc_{dataset}_{trial_type}_trials.npy')
+        for difficulty in difficulties: # 'base', 'hard', 'harder'
+            if difficulty == 'base':
+                trial_match = ['manypos', 'manyneg']
+            elif difficulty == 'hard':
+                trial_match = ['hardpos', 'hardneg']
+            elif difficulty == 'harder':
+                trial_match = ['hardpos', 'harderneg']
+
+            ### Infiles: final info files (to ensure BBN transcripts existed for each call)
+            pos_final_file = os.path.join(trials_dir, 
+                                        f'{dataset}_{trial_match[0]}_trials_info_final.json') 
+            neg_final_file = os.path.join(trials_dir, 
+                                        f'{dataset}_{trial_match[1]}_trials_info_final.json') 
 
             ### Retrieve LDC transcripts for trials
             tic = time.perf_counter()
-            print(f"Retrieving {dataset} set LDC transcripts for {trial_type} trials...")
-            if 'pos' in trial_type:
-                trials_final, trials_count = get_pos_transcripts('ldc', trial_type, 
-                                                                 trials_final_file, trunc_style, trunc_size, ldc_dir1, ldc_dir2, ldc_transcripts_outfile)
-            elif 'neg' in trial_type:
-                trials_final, trials_count = get_neg_transcripts('ldc', trial_type, 
-                                                                 trials_final_file, trunc_style, trunc_size, ldc_dir1, ldc_dir2, ldc_transcripts_outfile)
-            ldc_trials_counts.append({'trial type': trial_type, 'count': trials_count})
+            print(f"Retrieving {dataset} set LDC transcripts for {difficulty} trials...")
+            pos_transcripts, pos_trials_final, pos_trials_count = \
+                get_pos_transcripts('ldc', trial_match[0], pos_final_file, trunc_style, trunc_size, 
+                                    ldc_dir1, ldc_dir2)
+            neg_transcripts, neg_trials_final, neg_trials_count = \
+                get_neg_transcripts('ldc', trial_match[1], neg_final_file, trunc_style, trunc_size, 
+                                    ldc_dir1, ldc_dir2)
+            ldc_trials_counts.append({'difficulty': difficulty, 
+                                    'pos trials count': pos_trials_count,
+                                    'neg trials count': neg_trials_count,
+                                    'total trials count': pos_trials_count + neg_trials_count})
+
+            ### Output LDC trials with transcripts by difficulty level
+            ldc_transcripts_outfile = os.path.join(trials_dir, 
+                                                f'ldc_{dataset}_{difficulty}_trials.npy')
+            pos_neg_transcripts = pos_transcripts + neg_transcripts
+            output_to_file(pos_neg_transcripts, ldc_transcripts_outfile)
+            
             toc = time.perf_counter()
-            print(f"Finished retrieving {dataset} set LDC transcripts for {trial_type} trials in \
-                  {(toc - tic)/60:0.4f} minutes")
+            print(f"Retrieved trials in {(toc - tic)/60:0.4f} minutes")
         
         ### Output LDC trial stats to txt file (should match BBN stats file)
         ldc_stats_outfile = os.path.join(stats_dir, f'{dataset}_trials_stats_final_ldc.txt')
