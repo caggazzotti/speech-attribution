@@ -4,9 +4,9 @@
         x_pos_call_info.json
         x_all_call_info.json
     Outputs: 
-        Positive trials (balanced according to restrictions)
+        Base positive trials (balanced according to restrictions)
         Hard positive trials (balanced according to restrictions)
-        Negative trials (balanced according to restrictions)
+        Base negative trials (balanced according to restrictions)
         Hard negative trials (balanced according to restrictions)
         Harder negative trials (balanced according to restrictions)
 """
@@ -22,10 +22,10 @@ import sys
 
 ###############################       Create positive trials       ###############################
 
-def match_manypos_trials(f_max, m_max, topic_max, trials_max, pos_call_info_file, 
-                        manypos_trials_outfile): 
+def match_basepos_trials(f_max, m_max, topic_max, trials_max, pos_call_info_file, 
+                        basepos_trials_outfile): 
     """ 
-    Positive trials = same speaker, different call 
+    Base positive trials = same speaker, different call 
     NOTE can be restricted by choice of f_max, m_max, topic_max, trials_max
 
     Input data: 
@@ -37,7 +37,7 @@ def match_manypos_trials(f_max, m_max, topic_max, trials_max, pos_call_info_file
     """
     with open(pos_call_info_file, 'r') as f:
         pos_call_data = json.loads(f.read())
-    manypos_trials = [] 
+    basepos_trials = [] 
     gender_count = {'f': 0, 'm': 0} # total f/m appearances regardless of speaker 
     topic_appearances = {} 
     speaker_appearances = {} 
@@ -55,28 +55,28 @@ def match_manypos_trials(f_max, m_max, topic_max, trials_max, pos_call_info_file
                         pos_trial = {'PIN': ky,
                                     'call 1': val[i],
                                     'call 2': val[j]}
-                        manypos_trials.append(pos_trial)
+                        basepos_trials.append(pos_trial)
                         gender_count[val[i][0]] += 1
                         topic_appearances[val[i][3]] += 1
                         topic_appearances[val[j][3]] += 1
                         speaker_appearances.setdefault(ky, 0) 
                         speaker_appearances[ky] += 1 
-    print('manypos trials count: ', len(manypos_trials)) 
-    print('manypos gender count: ', gender_count)
-    print('manypos topics present: ', len(topic_appearances))
+    print('basepos trials count: ', len(basepos_trials)) 
+    print('basepos gender count: ', gender_count)
+    print('basepos topics present: ', len(topic_appearances))
     topic_distribution = sorted(topic_appearances.items(), key=lambda trial: trial[1], reverse=True)
-    print('manypos unique speakers: ', len(speaker_appearances))
+    print('basepos unique speakers: ', len(speaker_appearances))
     speaker_distribution = Counter(speaker_appearances.values())
     sorted_speaker_distr = dict(sorted(speaker_distribution.items(), key=lambda x:x[1], 
                                        reverse=True))
-    stats_info = [len(manypos_trials), gender_count, len(topic_appearances), topic_distribution, 
+    stats_info = [len(basepos_trials), gender_count, len(topic_appearances), topic_distribution, 
                   len(speaker_appearances), sorted_speaker_distr]
     if type(trials_max) == int: # take a random sample of total trials
-        sample = random.sample(manypos_trials, trials_max)
+        sample = random.sample(basepos_trials, trials_max)
         print(len(sample))
-        output_json(sample, manypos_trials_outfile)
+        output_json(sample, basepos_trials_outfile)
     else:
-        output_json(manypos_trials, manypos_trials_outfile)
+        output_json(basepos_trials, basepos_trials_outfile)
     return stats_info
 
 
@@ -137,22 +137,22 @@ def match_hardpos_trials(max_count, trials_max, pos_call_info_file, hardpos_tria
 
 ###############################       Create negative trials       ###############################
 
-def match_manyneg_trials(all_call_info_file, call_match_max, topic_max, trials_max, 
-                        manyneg_trials_outfile): 
+def match_baseneg_trials(all_call_info_file, call_match_max, topic_max, trials_max, 
+                        baseneg_trials_outfile): 
     """ 
-    Negative trials = different speakers (same or different call)
+    Base negative trials = different speakers (same or different call)
     NOTE can be restricted by choice of call_match_max, topic_max, trials_max
 
     Input data: 
         all_call_data = [[pin, gender, call_ID, channel, topic], ...]
     Outputs (json):
-        manyneg_trials_info = [ [[pin, gender, call_ID, channel, topic],
+        baseneg_trials_info = [ [[pin, gender, call_ID, channel, topic],
                                 [pin, gender, call_ID, channel, topic]], 
                                [ [],[] ], ...]
     """
     with open(all_call_info_file, 'r') as f:
         all_call_data = json.loads(f.read())
-    manyneg_trials = [] 
+    baseneg_trials = [] 
     gender_count = {'f': 0, 'm': 0} # total f/m appearances regardless of speaker 
     topic_appearances = {} 
     speaker_appearances = {} 
@@ -164,7 +164,7 @@ def match_manyneg_trials(all_call_info_file, call_match_max, topic_max, trials_m
                     topic_appearances.setdefault(all_call_data[j][4], 0) 
                     if topic_appearances[all_call_data[i][4]] < topic_max \
                             and topic_appearances[all_call_data[j][4]] < topic_max: 
-                        manyneg_trials.append([all_call_data[i], all_call_data[j]])
+                        baseneg_trials.append([all_call_data[i], all_call_data[j]])
                         gender_count[all_call_data[i][1]] += 1
                         gender_count[all_call_data[j][1]] += 1
                         topic_appearances[all_call_data[i][4]] += 1
@@ -173,22 +173,22 @@ def match_manyneg_trials(all_call_info_file, call_match_max, topic_max, trials_m
                         speaker_appearances.setdefault(all_call_data[j][0], 0)
                         speaker_appearances[all_call_data[i][0]] += 1
                         speaker_appearances[all_call_data[j][0]] += 1
-    print('manyneg trials count: ', len(manyneg_trials)) 
-    print('manyneg gender count: ', gender_count) 
-    print('manyneg topics present: ', len(topic_appearances)) 
+    print('baseneg trials count: ', len(baseneg_trials)) 
+    print('baseneg gender count: ', gender_count) 
+    print('baseneg topics present: ', len(topic_appearances)) 
     topic_distribution = sorted(topic_appearances.items(), key=lambda trial: trial[1], reverse=True)
-    print('manyneg unique speakers: ', len(speaker_appearances))
+    print('baseneg unique speakers: ', len(speaker_appearances))
     speaker_distribution = Counter(speaker_appearances.values())
     sorted_speaker_distr = dict(sorted(speaker_distribution.items(), key=lambda x:x[1], 
                                        reverse=True))
-    stats_info = [len(manyneg_trials), gender_count, len(topic_appearances), topic_distribution, 
+    stats_info = [len(baseneg_trials), gender_count, len(topic_appearances), topic_distribution, 
                   len(speaker_appearances), sorted_speaker_distr]
     if type(trials_max) == int: # take a random sample of total trials
-        sample = random.sample(manyneg_trials, trials_max)
+        sample = random.sample(baseneg_trials, trials_max)
         print(len(sample))
-        output_json(sample, manyneg_trials_outfile)
+        output_json(sample, baseneg_trials_outfile)
     else:
-        output_json(manyneg_trials, manyneg_trials_outfile)
+        output_json(baseneg_trials, baseneg_trials_outfile)
     return stats_info
 
 
@@ -302,15 +302,15 @@ def output_json(data, data_outfile):
     return
 
 
-def output_txt(set_type, f_max, m_max, topic_max_manypos, topic_max_manyneg, 
-               call_match_max_manyneg, call_match_max_hardneg, trials_max_pos, trials_max_neg, trials_max_harder, stats_all, stats_outfile): 
+def output_txt(set_type, f_max, m_max, topic_max_basepos, topic_max_baseneg, 
+               call_match_max_baseneg, call_match_max_hardneg, trials_max_pos, trials_max_neg, trials_max_harder, stats_all, stats_outfile): 
     """ Output dataset stats to txt file """
     with open(stats_outfile, 'w') as o_f:
         o_f.write('%s stats\n' % set_type)
         o_f.write('Max num of females and males: %i, %i\n' % (f_max, m_max))
-        o_f.write('Max times a topic can appear in manypos: %i\n' % topic_max_manypos)
-        o_f.write('Max times a topic can appear in manyneg: %i\n' % topic_max_manyneg)
-        o_f.write('Max times a call can be matched in manyneg: %i\n' % call_match_max_manyneg)
+        o_f.write('Max times a topic can appear in basepos: %i\n' % topic_max_basepos)
+        o_f.write('Max times a topic can appear in baseneg: %i\n' % topic_max_baseneg)
+        o_f.write('Max times a call can be matched in baseneg: %i\n' % call_match_max_baseneg)
         o_f.write('Max times a call can be matched in hardneg: %i\n\n' % call_match_max_hardneg)
         o_f.write(f'Max number of pos trials sampled: {trials_max_pos}\n')
         o_f.write(f'Max number of neg trials sampled: {trials_max_neg}\n')
@@ -342,9 +342,9 @@ def main(cfg):
 
     for set_type in datasets: # 'train', 'val', 'test'
         ### Get dataset parameters
-        topic_max_manypos = cfg[f'topic_max_manypos_{set_type}'] 
-        topic_max_manyneg = cfg[f'topic_max_manyneg_{set_type}'] 
-        call_match_max_manyneg = cfg[f'call_match_max_manyneg_{set_type}'] 
+        topic_max_basepos = cfg[f'topic_max_basepos_{set_type}'] 
+        topic_max_baseneg = cfg[f'topic_max_baseneg_{set_type}'] 
+        call_match_max_baseneg = cfg[f'call_match_max_baseneg_{set_type}'] 
         call_match_max_hardneg = cfg[f'call_match_max_hardneg_{set_type}'] 
         trials_max_pos = cfg[f'trials_max_pos_{set_type}'] 
         trials_max_neg = cfg[f'trials_max_neg_{set_type}'] 
@@ -358,21 +358,21 @@ def main(cfg):
         tic = time.perf_counter() 
         print(f"Starting {set_type} set trial creation...")
         stats_all = []
-        for trial_type in trial_types: # 'manypos', 'manyneg', 'hardpos', 'hardneg', 'harderneg'
+        for trial_type in trial_types: # 'basepos', 'baseneg', 'hardpos', 'hardneg', 'harderneg'
             ### Outfile for trials
             trials_outfile = os.path.join(trials_dir, f'{set_type}_{trial_type}_trials_info.json') 
             
             ### Get trials by trial_type
-            if trial_type == 'manypos': # same speaker, different call
-                stats_manypos = match_manypos_trials(f_max, m_max, topic_max_manypos, 
+            if trial_type == 'basepos': # same speaker, different call
+                stats_basepos = match_basepos_trials(f_max, m_max, topic_max_basepos, 
                                                      trials_max_pos, pos_call_info_file, trials_outfile)  
-                stats_all.append({'trial type': trial_type, 'stats': stats_manypos})
-            elif trial_type == 'manyneg': # different speakers (same or different call)
-                stats_manyneg = match_manyneg_trials(all_call_info_file, call_match_max_manyneg, 
-                                                    topic_max_manyneg, trials_max_neg, trials_outfile) 
-                stats_all.append({'trial type': trial_type, 'stats': stats_manyneg})
+                stats_all.append({'trial type': trial_type, 'stats': stats_basepos})
+            elif trial_type == 'baseneg': # different speakers (same or different call)
+                stats_baseneg = match_baseneg_trials(all_call_info_file, call_match_max_baseneg, 
+                                                    topic_max_baseneg, trials_max_neg, trials_outfile) 
+                stats_all.append({'trial type': trial_type, 'stats': stats_baseneg})
             elif trial_type == 'hardpos': # same speaker, different call, different topic
-                stats_hardpos = match_hardpos_trials(topic_max_manypos, trials_max_pos, 
+                stats_hardpos = match_hardpos_trials(topic_max_basepos, trials_max_pos, 
                                                     pos_call_info_file, trials_outfile) 
                 stats_all.append({'trial type': trial_type, 'stats': stats_hardpos})
             elif trial_type == 'hardneg': # different speaker, same topic (same or different call)
@@ -386,8 +386,8 @@ def main(cfg):
         
         ### Output dataset trial stats to txt file
         stats_outfile = os.path.join(stats_dir, f'{set_type}_set_trials_stats.txt')
-        output_txt(set_type.upper(), f_max, m_max, topic_max_manypos, topic_max_manyneg,      
-                   call_match_max_manyneg, call_match_max_hardneg, trials_max_pos, trials_max_neg, trials_max_harder, stats_all, stats_outfile) 
+        output_txt(set_type.upper(), f_max, m_max, topic_max_basepos, topic_max_baseneg,      
+                   call_match_max_baseneg, call_match_max_hardneg, trials_max_pos, trials_max_neg, trials_max_harder, stats_all, stats_outfile) 
         toc = time.perf_counter()
         print(f"Finished trial creation in {toc - tic:0.3f} seconds\n")
     return

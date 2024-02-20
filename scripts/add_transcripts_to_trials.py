@@ -298,7 +298,7 @@ def main(cfg):
         bbn_trials_counts = []
         for difficulty in difficulties: # 'base', 'hard', 'harder'
             if difficulty == 'base':
-                trial_match = ['manypos', 'manyneg']
+                trial_match = ['basepos', 'baseneg']
             elif difficulty == 'hard':
                 trial_match = ['hardpos', 'hardneg']
             elif difficulty == 'harder':
@@ -353,7 +353,7 @@ def main(cfg):
         ldc_trials_counts = []
         for difficulty in difficulties: # 'base', 'hard', 'harder'
             if difficulty == 'base':
-                trial_match = ['manypos', 'manyneg']
+                trial_match = ['basepos', 'baseneg']
             elif difficulty == 'hard':
                 trial_match = ['hardpos', 'hardneg']
             elif difficulty == 'harder':
