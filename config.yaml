@@ -1,0 +1,53 @@
+---
+### TODO change to absolute paths for your system
+fisher_dir1: './LDC2004T19'
+fisher_dir2: './LDC2005T19'
+work_dir: './speech-attribution'
+
+val_fraction: .25
+test_fraction: .25
+r_state: 1 
+
+datasets: ['train', 'val', 'test'] #'train', 'val', 'test'
+encodings: ['bbn', 'ldc'] #'bbn', 'ldc'
+trial_types: ['basepos', 'baseneg', 'hardpos', 'hardneg', 'harderneg'] 
+difficulties: ['base', 'hard', 'harder'] #'base', 'hard', 'harder'
+
+f_max: 5000 #arbitrary; for gender balance (@5000 balance not used)
+m_max: 5000 #arbitrary; for gender balance (@5000 balance not used)
+
+topic_max_basepos_train: 120 #arbitrary; for topic balance (pos trials)
+topic_max_baseneg_train: 160 #arbitrary; for topic balance (neg trials)
+call_match_max_baseneg_train: 2 #arbitrary; for call/speaker balance (neg trials)
+call_match_max_hardneg_train: 8 #arbitrary; for call/speaker balance (hardneg trials)
+trials_max_pos_train: '' #use int to select random subset of size int; otherwise empty string 
+trials_max_neg_train: '' #use int to select random subset of size int; otherwise empty string 
+trials_max_harder_train: 2000 #use int to select random subset of size int; otherwise empty string
+
+topic_max_basepos_val: 60 #arbitrary; for topic balance (pos trials)
+topic_max_baseneg_val: 80 #arbitrary; for topic balance (neg trials)
+call_match_max_baseneg_val: 2 #arbitrary; for call/speaker balance (neg trials)
+call_match_max_hardneg_val: 12 #arbitrary; for call/speaker balance (hardneg trials)
+trials_max_pos_val: '' #use int to select random subset of size int; otherwise empty string 
+trials_max_neg_val: '' #use int to select random subset of size int; otherwise empty string
+trials_max_harder_val: '' #use int to select random subset of size int; otherwise empty string
+
+topic_max_basepos_test: 60 #arbitrary; for topic balance (pos trials)
+topic_max_baseneg_test: 80 #arbitrary; for topic balance (neg trials)
+call_match_max_baseneg_test: 2 #arbitrary; for call/speaker balance (neg trials)
+call_match_max_hardneg_test: 10 #arbitrary; for call/speaker balance (hardneg trials)
+trials_max_pos_test: '' #use int to select random subset of size int; otherwise empty string 
+trials_max_neg_test: '' #use int to select random subset of size int; otherwise empty string
+trials_max_harder_test: '' #use int to select random subset of size int; otherwise empty string
+
+trunc_style: 'beginning' #'none', 'beginning'
+trunc_size: 5 
+
+models: ['SBERT', 'CISR', 'LUAR'] #'SBERT','CISR','LUAR'
+eval_type: 'val' #'val', 'test
+model_versions: ['o', 'ft'] #'o', 'ft'
+clf: 'mlp' 
+solver: 'adam' 
+max_iter: 800 
+num_resamples: 1000
+
