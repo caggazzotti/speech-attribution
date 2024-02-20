@@ -21,29 +21,29 @@ import sys
 
 ###############################       Split datasets       ###############################
 
-def split_datasets(train_fraction, test_fraction, r_state, pindata_tbl):
+def split_datasets(val_fraction, test_fraction, r_state, pindata_tbl):
     """
     Datasets divided based on pin/speaker (pin IDs range from 1006-99997) 
     pindata.tbl contains ALL pins/speakers across Fisher pt. 1 and pt. 2
 
     Inputs: 
-        fractions of the whole dataset to reserve for training set and test set
+        fractions of the whole dataset to reserve for validation set and test set
         random state
         Fisher pindata table full of call records per PIN/speaker
     Outputs: 
-        test_set array
-        val_set array
-        train_set array
+        test_set dataframe
+        val_set dataframe
+        train_set dataframe
     """
     pin_data = pd.read_table(pindata_tbl, delimiter=',', 
                              converters={'PIN': str}) # to keep leading zeros in PIN
     num_speakers = len(pin_data)
     print('# of total speakers:', num_speakers)
     
-    test_split = train_fraction + test_fraction # np.split fractions are cumulative
-    train_set, test_set, val_set = np.split(
-        pin_data.sample(frac=1, random_state=r_state), 
-        [int(train_fraction * len(pin_data)), int(test_split * len(pin_data))]) 
+    test_set = pin_data.sample(frac=test_fraction, random_state=r_state)
+    trainval_set = pin_data.drop(test_set.index)
+    val_set = trainval_set.sample(frac=val_fraction, random_state=r_state)
+    train_set = trainval_set.drop(val_set.index)
     print('train-val-test # of speakers:', len(train_set), len(val_set), len(test_set))
     return train_set, val_set, test_set, num_speakers
 
@@ -54,7 +54,7 @@ def get_pin_data(set_data):
     Speaker calls can appear in both positive and negative trials
 
     Inputs: 
-        respective array of pindata (train_set/val_set/test_set)
+        respective df of pindata (train_set/val_set/test_set)
     Outputs: 
         pos_pin_data = {pin_ID: [[gender, call_ID, channel], [...]], pin_ID: [[]], ...} 
             only speakers who participated in multiple calls
@@ -199,7 +199,7 @@ def main(cfg):
     work_dir = cfg['work_dir']
     r_state = cfg['r_state'] 
     test_fraction = cfg['test_fraction']
-    train_fraction = cfg['train_fraction']
+    val_fraction = cfg['val_fraction']
     
     ### Fisher data files
     calldata_tbl_pt1 = os.path.join(fisher_dir1, 'doc/fe_03_p1_calldata.tbl')
@@ -207,9 +207,9 @@ def main(cfg):
     pindata_tbl = os.path.join(fisher_dir1, 'doc/fe_03_pindata.tbl')
     
     ### Split datasets by speaker
-    val_fraction = 1 - train_fraction - test_fraction
+    train_fraction = 1 - val_fraction - test_fraction
     split_perc = f'{train_fraction}-{val_fraction}-{test_fraction}' # for output file
-    train_set, val_set, test_set, num_speakers = split_datasets(train_fraction, \
+    train_set, val_set, test_set, num_speakers = split_datasets(val_fraction, \
                                                                 test_fraction, r_state, pindata_tbl)
     dataset_splits = {'train': train_set, 'val': val_set, 'test': test_set}
     
