@@ -21,13 +21,13 @@ import torch
 from transformers import AutoModel, AutoTokenizer
 
 if torch.cuda.is_available():
-  print("GPU information")
-  print(torch.cuda.device_count())
-  print(torch.cuda.current_device())
-  print(torch.cuda.device(0))
-  print(torch.cuda.get_device_name(0))
+    print("GPU information")
+    print(torch.cuda.device_count())
+    print(torch.cuda.current_device())
+    print(torch.cuda.device(0))
+    print(torch.cuda.get_device_name(0))
 else:
-  print("WARNING: No GPU detected")
+    print("WARNING: No GPU detected")
 
 
 ###############################       LUAR embed trials       ###############################
@@ -39,7 +39,7 @@ def embed_trials(trials_file, tokenizer, model, embed_outfile):
     embeddings = [] 
     with open(trials_file, 'rb') as f:
         trials = np.load(f, allow_pickle=True)
-    for trial in trials[:2]:
+    for trial in trials:
         embedding1 = embed_utterances(trial['call 1'], tokenizer, model)
         embedding2 = embed_utterances(trial['call 2'], tokenizer, model)
         ### Ensure call has an embedding (since remove first 5 utterances, call could be too short)

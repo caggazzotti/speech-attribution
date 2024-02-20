@@ -18,17 +18,16 @@ import yaml
 import sys
 import torch
 
-# requirement: pip install -U sentence-transformers
 from sentence_transformers import SentenceTransformer
 
 if torch.cuda.is_available():
-  print("GPU information")
-  print(torch.cuda.device_count())
-  print(torch.cuda.current_device())
-  print(torch.cuda.device(0))
-  print(torch.cuda.get_device_name(0))
+    print("GPU information")
+    print(torch.cuda.device_count())
+    print(torch.cuda.current_device())
+    print(torch.cuda.device(0))
+    print(torch.cuda.get_device_name(0))
 else:
-  print("WARNING: No GPU detected")
+    print("WARNING: No GPU detected")
 
 
 ###############################       SBERT embed trials       ###############################
