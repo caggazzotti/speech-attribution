@@ -43,10 +43,12 @@ def embed_trials(trials_file, model, embed_outfile):
     for trial in trials:
         embedding1 = embed_utterances(trial['call 1'], model)
         embedding2 = embed_utterances(trial['call 2'], model)
-        embedded_trial = {'label': trial['label'],
-                            'call 1': embedding1,
-                            'call 2': embedding2}
-        embeddings.append(embedded_trial)
+        ### Ensure call has an embedding (since remove first 5 utterances, call could be too short)
+        if not np.any(np.isnan(embedding1)) and not np.any(np.isnan(embedding2)):
+            embedded_trial = {'label': trial['label'],
+                                'call 1': embedding1,
+                                'call 2': embedding2}
+            embeddings.append(embedded_trial)
     print('Num of trials embedded: ', len(embeddings)) 
     output_to_file(embeddings, embed_outfile)
     return 
@@ -104,7 +106,7 @@ def main(cfg):
                 print(f"CISR embedding {encoding} {dataset} {difficulty} trials...")
                 embed_trials(trials_file, CISR_model, embed_outfile)
                 toc = time.perf_counter()
-                print(f"Embedded trials in {(toc - tic)/60:0.4f} minutes")
+                print(f"Embedded trials in {(toc - tic)/60:0.3f} minutes")
     return
 
 
