@@ -65,7 +65,7 @@ The out-of-the-box and fine-tuned models can be evaluated separately by setting 
 	python scripts/evaluate_models.py config.yaml
 
 
-# Citation
+## Citation
 If you use our benchmark in your work, please consider citing our paper:
 
 	@misc{speech-aa2023,
