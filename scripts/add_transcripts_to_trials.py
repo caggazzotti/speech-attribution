@@ -43,7 +43,7 @@ def get_pos_transcripts(encoding, trial_type, pos_trials_info_file, trunc_style,
         pos_trials_info = json.loads(f.read())
     pos_transcripts = []
     pos_trials_final = []
-    for trial in pos_trials_info[:100]:
+    for trial in pos_trials_info:
         transcripts = []
         call_ID1 = trial['call 1'][1]
         channel1 = trial['call 1'][2]
@@ -127,7 +127,7 @@ def get_neg_transcripts(encoding, trial_type, neg_trials_info_file, trunc_style,
         neg_trials_info = json.loads(f.read())
     neg_transcripts = []
     neg_trials_final = []
-    for trial in neg_trials_info[:100]:
+    for trial in neg_trials_info:
         transcripts = []
         call_ID1 = trial[0][2]
         channel1 = trial[0][3]
