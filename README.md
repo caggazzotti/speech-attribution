@@ -74,5 +74,4 @@ If you use our benchmark in your work, please consider citing our paper:
       year={2023},
       eprint={2311.07564},
       archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
+      primaryClass={cs.CL}}
