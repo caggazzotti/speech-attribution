@@ -46,7 +46,7 @@ Note that following the findings in the paper, each speaker's first five utteran
 	python scripts/add_transcripts_to_trials.py config.yaml
 
 ### Step 4: Add model embeddings to transcript trials 
-Using the final transcript trials from the previous step, the respective model embeds each call within each trial (across encodings, datasets, and difficulties). We assume that each model can process a sequence of utterances in some fashion and output a vector that captures features of the transcript. Each model is run separately by the scripts below and we recommend using a GPU. A new directory is automatically created for each model that will contain the embedded trials and the later training and evaluation outputs.
+Using the final transcript trials from the previous step, the respective model embeds each call within each trial (across encodings, datasets, and difficulties). We assume that each model can process a sequence of utterances in some fashion and output a vector that captures features of the transcript. Each model is run separately by the scripts below; we recommend using a GPU. A new directory is automatically created for each model that will contain the embedded trials and the later training and evaluation outputs.
 
 	python scripts/embed_trials_SBERT.py config.yaml
 	python scripts/embed_trials_CISR.py config.yaml
