@@ -71,7 +71,8 @@ def embed_utterances(speaker_utterances, tokenizer, model):
                                                                       episode_length, -1)
     tokenized_text["attention_mask"] = tokenized_text["attention_mask"].reshape(batch_size,
                                                                                 episode_length, -1)
-    embedding = model(tokenized_text["input_ids"], tokenized_text["attention_mask"])
+    with torch.inference_mode():    
+        embedding = model(tokenized_text["input_ids"], tokenized_text["attention_mask"])
     return embedding
 
 
@@ -98,6 +99,7 @@ def main(cfg):
     ### Load the tokenizer and model
     LUAR_tokenizer = AutoTokenizer.from_pretrained("rrivera1849/LUAR-MUD")
     LUAR_model = AutoModel.from_pretrained("rrivera1849/LUAR-MUD", trust_remote_code=True)
+    LUAR_model.eval()
 
     ### Embed each set of trials
     for encoding in encodings: # 'bbn', 'ldc'

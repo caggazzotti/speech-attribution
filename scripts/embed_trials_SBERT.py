@@ -59,7 +59,8 @@ def embed_utterances(speaker_utterances, model):
     """
     utterance_embeddings = []
     for utterance in speaker_utterances:
-        embedding = model.encode([utterance.strip()]) 
+        with torch.no_grad():
+            embedding = model.encode([utterance.strip()]) 
         utterance_embeddings.append(embedding) 
     avg_embedding = np.mean(utterance_embeddings, axis=0) # average along column
     return avg_embedding
@@ -87,6 +88,7 @@ def main(cfg):
     
     ### Load the model
     SBERT_model = SentenceTransformer('sentence-transformers/all-MiniLM-L12-v2')
+    SBERT_model.eval()
 
     ### Embed each set of trials
     for encoding in encodings: # 'bbn', 'ldc'
