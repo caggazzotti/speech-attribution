@@ -71,14 +71,14 @@ The out-of-the-box and fine-tuned models can be evaluated separately by setting 
 If you use our benchmark in your work, please consider citing our paper:
 
 	@article{speech-aa2023,
-	title={Can Authorship Attribution Models Distinguish Speakers in Speech Transcripts?}, 
-	author={Cristina Aggazzotti and Nicholas Andrews and Elizabeth Allyn Smith},
-	journal = {Transactions of the Association for Computational Linguistics},
-	volume = {12},
-	pages = {875-891},
-	year = {2024},
-	month = {07},
-	issn = {2307-387X},
-	doi = {10.1162/tacl_a_00678},
-	url = {https://doi.org/10.1162/tacl\_a\_00678},
-	eprint = {https://direct.mit.edu/tacl/article-pdf/doi/10.1162/tacl\_a\_00678/2461933/tacl\_a\_00678.pdf}}
+		title={Can Authorship Attribution Models Distinguish Speakers in Speech Transcripts?}, 
+		author={Cristina Aggazzotti and Nicholas Andrews and Elizabeth Allyn Smith},
+		journal = {Transactions of the Association for Computational Linguistics},
+		volume = {12},
+		pages = {875-891},
+		year = {2024},
+		month = {07},
+		issn = {2307-387X},
+		doi = {10.1162/tacl_a_00678},
+		url = {https://doi.org/10.1162/tacl\_a\_00678},
+		eprint = {https://direct.mit.edu/tacl/article-pdf/doi/10.1162/tacl\_a\_00678/2461933/tacl\_a\_00678.pdf}}
