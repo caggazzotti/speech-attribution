@@ -5,7 +5,7 @@ in Speech Transcripts?"](https://arxiv.org/abs/2311.07564). The paper presents a
 
 ## Installation
 
-To create an environment with the required packages, run the following commands within the speech-attribution directory:
+To create an environment with the required packages, run the following commands within the `speech-attribution` directory:
 
 	python3 -m venv speech_attr
 	. ./speech_attr/bin/activate
@@ -15,11 +15,13 @@ To create an environment with the required packages, run the following commands 
 ## Setup
 The absolute paths for the Fisher data and the working directory for this project need to be manually added by modifying the following path variables in `config.yaml`:
 
-- fisher_dir1: directory containing Fisher pt. 1 data (placeholder: ./LDC2004T19)
-- fisher_dir2: directory containing Fisher pt. 2 data (placeholder: ./LDC2005T19)
-- work_dir: where the trial datasets and results will be stored (placeholder: ./speech-attribution)
+- fisher_dir1: directory containing Fisher pt. 1 data (placeholder: `./LDC2004T19`)
+- fisher_dir2: directory containing Fisher pt. 2 data (placeholder: `./LDC2005T19`)
+- work_dir: where the trial datasets and results will be stored (placeholder: `./speech-attribution`)
 
-The model embeddings should be run using a GPU if available.
+The model embeddings should be run using a GPU if available.  
+
+*NOTE: The Fisher data require an LDC subscription to [Fisher English Training Speech Part 1 Transcripts](https://catalog.ldc.upenn.edu/LDC2004T19) and [Fisher English Training Part 2 Transcripts](https://catalog.ldc.upenn.edu/LDC2005T19).
 
 ## Creating the trials and model embeddings
 
