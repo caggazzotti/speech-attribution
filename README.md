@@ -1,7 +1,7 @@
 # Attribution of Transcribed Speech
 
-This is the official repository for the 2023 paper ["Can Authorship Attribution Models Distinguish Speakers
-in Speech Transcripts?"](https://arxiv.org/abs/2311.07564). The paper presents a new benchmark for speaker attribution by applying authorship attribution methods to conversational speech transcripts. We establish the state of the art on this benchmark by comparing various neural and non-neural baselines, finding that written text attribution models perform relatively well in certain settings, but perform worse as conversational topic is increasingly controlled.
+This is the official repository for the 2024 paper ["Can Authorship Attribution Models Distinguish Speakers
+in Speech Transcripts?"](https://direct.mit.edu/tacl/article/doi/10.1162/tacl_a_00678/123650/Can-Authorship-Attribution-Models-Distinguish). The paper presents a new benchmark for speaker attribution by applying authorship attribution methods to conversational speech transcripts. We establish the state of the art on this benchmark by comparing various neural and non-neural baselines, finding that written text attribution models perform relatively well in certain settings, but perform worse as conversational topic is increasingly controlled.
 
 ## Installation
 
@@ -70,10 +70,16 @@ The out-of-the-box and fine-tuned models can be evaluated separately by setting 
 ## Citation
 If you use our benchmark in your work, please consider citing our paper:
 
-	@misc{speech-aa2023,
-      title={Can Authorship Attribution Models Distinguish Speakers in Speech Transcripts?}, 
-      author={Cristina Aggazzotti and Nicholas Andrews and Elizabeth Allyn Smith},
-      year={2023},
-      eprint={2311.07564},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}}
+    @article{aggazzotti2024,
+        author = {Aggazzotti, Cristina and Andrews, Nicholas and Smith, Elizabeth Allyn},
+        title = {Can Authorship Attribution Models Distinguish Speakers in Speech Transcripts?},
+        journal = {Transactions of the Association for Computational Linguistics},
+        volume = {12},
+        pages = {875-891},
+        year = {2024},
+        month = {07},
+        issn = {2307-387X},
+        doi = {10.1162/tacl_a_00678},
+        url = {https://doi.org/10.1162/tacl_a_00678},
+        eprint = {https://direct.mit.edu/tacl/article-pdf/doi/10.1162/tacl_a_00678/2461933/tacl_a_00678.pdf},
+    }
