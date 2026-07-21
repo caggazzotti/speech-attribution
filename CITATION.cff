@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+title: speech-attribution
+message: "If you use this software, please cite the associated paper."
+type: software
+
+authors:
+  - family-names: Aggazzotti
+    given-names: Cristina
+  - family-names: Andrews
+    given-names: Nicholas
+  - family-names: Smith
+    given-names: Elizabeth Allyn
+
+repository-code: https://github.com/caggazzotti/speech-attribution
+
+license: Apache-2.0
+
+preferred-citation:
+  type: article
+  title: "Can Authorship Attribution Models Distinguish Speakers in Speech Transcripts?"
+  authors:
+    - family-names: Aggazzotti
+      given-names: Cristina
+    - family-names: Andrews
+      given-names: Nicholas
+    - family-names: Smith
+      given-names: Elizabeth Allyn
+  journal: "Transactions of the Association for Computational Linguistics"
+  volume: 12
+  start: 875
+  end: 891
+  year: 2024
+  doi: "10.1162/tacl_a_00678"
+  url: "https://doi.org/10.1162/tacl_a_00678"
