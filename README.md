@@ -85,3 +85,6 @@ If you use our benchmark in your work, please consider citing our paper:
         url = {https://doi.org/10.1162/tacl_a_00678},
         eprint = {https://direct.mit.edu/tacl/article-pdf/doi/10.1162/tacl_a_00678/2461933/tacl_a_00678.pdf},
     }
+
+## License
+This project is licensed under Apache 2.0. All contributions must be made under the Apache 2.0 license. See LICENSE for details.
